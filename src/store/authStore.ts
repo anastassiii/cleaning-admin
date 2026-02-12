@@ -1,28 +1,53 @@
 import { create } from "zustand";
-import type { User } from "../types/user";
-import { mockUsers } from "../utils/mockUsers";
+
+export type UserRole = "CLIENT" | "ADMIN" | "CLEANER";
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+}
 
 interface AuthState {
   user: User | null;
-  login: (email: string, password: string) => boolean;
+  login: (user: Partial<User>) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+  // Инициализация user из localStorage синхронно
+  user: (() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.role) {
+          return { ...parsed, role: parsed.role.toUpperCase() };
+        }
+      } catch {
+        localStorage.removeItem("user");
+      }
+    }
+    return null;
+  })(),
 
-  login: (email, password) => {
-    const foundUser = mockUsers.find(
-      (u) => u.email === email && u.password === password
-    );
+  login: (user) => {
+    if (!user || !user.role) return;
 
-    if (!foundUser) return false;
+    const normalizedUser: User = {
+      id: user.id!,
+      name: user.name || "",
+      email: user.email || "",
+      role: user.role.toUpperCase() as UserRole,
+    };
 
-    const { password: _, ...userWithoutPassword } = foundUser;
-
-    set({ user: userWithoutPassword });
-    return true;
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
+    set({ user: normalizedUser });
   },
 
-  logout: () => set({ user: null }),
+  logout: () => {
+    localStorage.removeItem("user");
+    set({ user: null });
+  },
 }));

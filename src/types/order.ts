@@ -1,4 +1,4 @@
-export type CleaningType = "STANDART" | "DEEP" | "AFTER_RENOVATION";
+export type CleaningType = "STANDARD" | "DEEP" | "AFTER_RENOVATION";
 
 export type OrderStatus = 
     | "CREATED"
@@ -8,15 +8,42 @@ export type OrderStatus =
     | "COMPLETED"
     | "CANCELLED";
 
-export interface Order {
-    id: string;
-    clientId: string;
-    cleanerId?: string;
-    type: CleaningType;
-    area: number;
-    extras: string[];
-    price: number;
-    estimateDuration: number;
-    status: OrderStatus;
-    createdAt: string;
+export type ExtraOption =
+  | "OVEN"
+  | "HOOD"
+  | "KITCHEN_CABINETS"
+  | "DISHES"
+  | "FRIDGE"
+  | "MICROWAVE"
+  | "BALCONY"
+  | "WINDOWS"
+  | "IRONING"
+  | "WARDROBE";
+
+export type PaymentMethod = "CARD" | "CASH";
+
+export interface NewOrderForm {
+  type: CleaningType;
+  rooms: number;
+  bathrooms: number;
+  extras: ExtraOption[];
+  additionalHours: number;
+  date: string;
+  time: string;
+  address: string;
+  paymentMethod: PaymentMethod;
+  promoCode: string;
 }
+
+export const initialState: NewOrderForm = {
+  type: "STANDARD",
+  rooms: 1,
+  bathrooms: 1,
+  extras: [],
+  additionalHours: 0,
+  date: "",
+  time: "",
+  address: "",
+  paymentMethod: "CARD",
+  promoCode: "",
+};

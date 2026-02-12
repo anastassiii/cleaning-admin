@@ -1,43 +1,29 @@
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+
+const mockUsers = [
+  { id: 1, name: "Иван", email: "ivan@mail.com", role: "CLIENT" },
+  { id: 2, name: "Анна", email: "anna@mail.com", role: "ADMIN" },
+  { id: 3, name: "Сергей", email: "sergey@mail.com", role: "CLEANER" },
+];
 
 const LoginPage = () => {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleLogin = () => {
-    const success = login(email, password);
-
-    if (success) {
-      navigate("/dashboard");
-    } else {
-      alert("Invalid credentials");
-    }
+  const handleLogin = (user) => {
+    login(user);
+    navigate("/dashboard"); // сразу редирект после логина
   };
 
   return (
     <div>
-      <h2>Login</h2>
-
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <button onClick={handleLogin}>Login</button>
+      <h2>Login (mock)</h2>
+      {mockUsers.map((user) => (
+        <button key={user.id} onClick={() => handleLogin(user)}>
+          Войти как {user.name} ({user.role})
+        </button>
+      ))}
     </div>
   );
 };
