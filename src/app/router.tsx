@@ -3,6 +3,7 @@ import LoginPage from "../pages/LoginPage";
 import DashboardPage from "../pages/DashboardPage";
 import ProtectedRoute from "./ProtectedRoute";
 import NewOrderPage from "../pages/NewOrderPage";
+import MyOrdersPage from "../pages/MyOrdersPage";
 
 export const AppRouter = () => {
   return (
@@ -26,6 +27,14 @@ export const AppRouter = () => {
           }
         />
         <Route path="*" element={<Navigate to="/login" />} />
+        <Route
+          path="/my-orders"
+          element={
+            <ProtectedRoute allowedRoles={["CLIENT"]}>
+              <MyOrdersPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

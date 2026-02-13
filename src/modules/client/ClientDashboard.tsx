@@ -1,25 +1,22 @@
 import { useAuthStore } from "../../store/authStore";
+import { useOrderStore } from "../../store/orderStore";
 import { getGreeting } from "../../utils/getGreeting";
-import { useEffect } from "react";
-import { calculateOrderPrice } from "../../utils/orderCalculations";
+import { Link } from "react-router-dom";
 
 const ClientDashboard = () => {
     const user = useAuthStore((state) => state.user);
     const logout = useAuthStore((state) => state.logout);
+    const orders = useOrderStore((state) => state.orders);
+
+    const activeOrders = orders.filter(
+        (order) =>
+            order.clientId === user.id &&
+            order.status !== "COMPLETED" &&
+            order.status !== "CANCELLED"
+    )
 
     if (!user) return null;
-    useEffect(() => {
-    const testPrice = calculateOrderPrice(
-        "STANDARD",
-        2,                // rooms
-        1,                // bathrooms
-        ["OVEN", "WINDOWS"], 
-        1,                // additionalHours
-        "SALE10"
-    );
-
-    console.log("Test price:", testPrice);
-    }, []);
+    if (user.role !== "CLIENT") return null;
 
     return (
         <div style={{ padding: "20px" }}>
@@ -36,24 +33,31 @@ const ClientDashboard = () => {
             {/* Menu */}
             <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
                 <div>👤 Мой профиль</div>
-                <div>➕ Новый заказ</div>
-                <div>📦 Мои заказы</div>
+                <Link to="/new-order">➕ Новый заказ</Link>
+                <Link to="/my-orders">📦 Мои заказы</Link>
                 <div>🎁 Реферальная программа</div>
             </div>
 
             {/* Greeting */}
             <div style={{ marginTop: "30px" }}>
                 <h2>
-                {getGreeting()}, {user.email}
+                {getGreeting()}, {user.name}
                 </h2>
             </div>
 
             {/* Create order CTA */}
             <div style={{ marginTop: "20px" }}>
-                <button style={{ width: "100%", padding: "20px" }}>
+                <Link to="/new-order"><button style={{ width: "100%", padding: "20px" }}>
                 ➕ Оформить заказ
-                </button>
+                </button></Link>
             </div>
+            {activeOrders.length > 0 && (
+                <div style={{ marginTop: "30px" }}>
+                    <h3>Активный заказ</h3>
+                    <p>Статус: {activeOrders[0].status}</p>
+                    <p>Дата: {activeOrders[0].date}</p>
+                </div>
+            )}
 
             {/* Footer buttons */}
             <div style={{ marginTop: "40px", display: "flex", gap: "10px" }}>
